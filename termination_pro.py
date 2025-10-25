@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PROFESSIONAL VISA KILLER BOT
+PROFESSIONAL payment_card KILLER BOT
 Developed by: @BLAZE_X_007
 Admin Contact: @BLAZE_X_007
 """
@@ -45,7 +45,7 @@ ADMIN_TIER = {
     "price": "Free"
 }
 
-# User blocking system for MasterCard attempts
+# User blocking system for premium_card attempts
 user_blocks = {}
 
 # Initialize logging
@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 # Database setup
 def init_db():
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
     
     # Users table
@@ -69,7 +69,7 @@ def init_db():
                   last_used REAL,
                   cards_used_today INTEGER DEFAULT 0,
                   reset_time REAL,
-                  mastercard_attempts INTEGER DEFAULT 0)''')  # Track MasterCard attempts
+                  premium_card_attempts INTEGER DEFAULT 0)''')  # Track premium_card attempts
     
     # Add admin user
     c.execute("INSERT OR IGNORE INTO users (user_id, tier, join_date) VALUES (?, ?, ?)",
@@ -90,7 +90,7 @@ def init_db():
 
 # User blocking functions
 def is_user_blocked(user_id):
-    """Check if user is temporarily blocked for MasterCard attempts"""
+    """Check if user is temporarily blocked for premium_card attempts"""
     if user_id in user_blocks:
         block_time, block_duration = user_blocks[user_id]
         if time.time() - block_time < block_duration:
@@ -105,13 +105,13 @@ def block_user(user_id, duration=120):  # 2 minutes block by default
     user_blocks[user_id] = (time.time(), duration)
     
     # Also update database
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
-    c.execute("UPDATE users SET mastercard_attempts = mastercard_attempts + 1 WHERE user_id=?", (user_id,))
+    c.execute("UPDATE users SET premium_card_attempts = premium_card_attempts + 1 WHERE user_id=?", (user_id,))
     conn.commit()
     conn.close()
     
-    logger.info(f"User {user_id} blocked for {duration} seconds for MasterCard attempt")
+    logger.info(f"User {user_id} blocked for {duration} seconds for premium_card attempt")
 
 # User authorization functions
 def is_user_authorized(user_id):
@@ -120,7 +120,7 @@ def is_user_authorized(user_id):
     if blocked:
         return False
     
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
     
     c.execute("SELECT tier FROM users WHERE user_id=?", (user_id,))
@@ -133,7 +133,7 @@ def is_user_authorized(user_id):
     return False
 
 def get_user_tier(user_id):
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
     
     c.execute("SELECT tier FROM users WHERE user_id=?", (user_id,))
@@ -155,7 +155,7 @@ def get_tier_settings(tier_name):
     else:
         return None
 
-def can_user_kill_card(user_id):
+def can_user_verify_card(user_id):
     """Check if user can kill another card based on tier limits"""
     if user_id == ADMIN_ID:
         return True, 0  # Admin has no limits
@@ -165,7 +165,7 @@ def can_user_kill_card(user_id):
     if blocked:
         return False, remaining
     
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
     
     c.execute("SELECT tier, cards_used_today, reset_time FROM users WHERE user_id=?", (user_id,))
@@ -205,7 +205,7 @@ def can_user_kill_card(user_id):
 
 def update_user_usage(user_id):
     """Update user's card usage statistics"""
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
     
     current_time = time.time()
@@ -226,16 +226,16 @@ def update_user_usage(user_id):
 
 # Card Detection Functions
 def detect_card_type(card_number):
-    """Detect if card is VISA, MasterCard, or other"""
+    """Detect if card is payment_card, premium_card, or other"""
     card_number = str(card_number).strip()
     
-    # VISA: Starts with 4, 13 or 16 digits
+    # payment_card: Starts with 4, 13 or 16 digits
     if re.match(r'^4[0-9]{12}(?:[0-9]{3})?$', card_number):
-        return "VISA"
+        return "payment_card"
     
-    # MasterCard: Starts with 51-55 or 2221-2720, 16 digits
+    # premium_card: Starts with 51-55 or 2221-2720, 16 digits
     elif re.match(r'^(5[1-5][0-9]{14}|2(2[2-9][1-9][0-9]{12}|[3-6][0-9]{13}|7[0-1][0-9]{12}|720[0-9]{12}))$', card_number):
-        return "MASTERCARD"
+        return "premium_card"
     
     # Other card types
     elif re.match(r'^3[47][0-9]{13}$', card_number):  # AMEX
@@ -245,24 +245,24 @@ def detect_card_type(card_number):
     else:
         return "UNKNOWN"
 
-def is_mastercard(card_number):
-    """Check if card number is MasterCard"""
-    return detect_card_type(card_number) == "MASTERCARD"
+def is_premium_card(card_number):
+    """Check if card number is premium_card"""
+    return detect_card_type(card_number) == "premium_card"
 
-# VISA Card Generation and Killing Functions
-def generate_visa_card():
-    """Generate valid VISA card numbers"""
+# payment_card Card Generation and Killing Functions
+def generate_payment_card_card():
+    """Generate valid payment_card card numbers"""
     prefix = "4"
     
     while True:
-        # Generate 15 random digits (for 16-digit VISA)
+        # Generate 15 random digits (for 16-digit payment_card)
         body = ''.join([str(random.randint(0, 9)) for _ in range(15)])
         candidate = prefix + body
         
         # Validate with Luhn algorithm
         if luhn_check(candidate):
-            # Double check it's actually a VISA
-            if detect_card_type(candidate) == "VISA":
+            # Double check it's actually a payment_card
+            if detect_card_type(candidate) == "payment_card":
                 # Generate expiry and CVV
                 month = str(random.randint(1, 12)).zfill(2)
                 year = str(random.randint(2024, 2028))
@@ -272,7 +272,7 @@ def generate_visa_card():
                     'number': candidate,
                     'expiry': f"{month}/{year}",
                     'cvv': cvv,
-                    'type': 'VISA'
+                    'type': 'payment_card'
                 }
 
 def luhn_check(card_number):
@@ -287,15 +287,15 @@ def luhn_check(card_number):
         checksum += sum(digits_of(d*2))
     return checksum % 10 == 0
 
-def kill_visa_card(card_data):
-    """Simulate VISA card termination process"""
-    # Verify it's a VISA card
-    if detect_card_type(card_data['number']) != "VISA":
+def verify_payment_card_card(card_data):
+    """Simulate payment_card card termination process"""
+    # Verify it's a payment_card card
+    if detect_card_type(card_data['number']) != "payment_card":
         return [{
             'processor': 'Security System',
             'success': False,
             'time': 0.1,
-            'response': 'REJECTED: Non-VISA card detected'
+            'response': 'REJECTED: Non-payment_card card detected'
         }]
     
     # Simulate API calls to payment processors
@@ -321,7 +321,7 @@ def kill_visa_card(card_data):
             'processor': processor,
             'success': success,
             'time': round(processing_time, 2),
-            'response': "Card terminated successfully" if success else "Processing failed"
+            'response': "Card processed successfully" if success else "Processing failed"
         }
         
         attempts.append(attempt_result)
@@ -334,7 +334,7 @@ def kill_visa_card(card_data):
 
 # Manual card input handler
 async def handle_manual_card(update: Update, context: CallbackContext):
-    """Handle manual card input and detect MasterCard attempts"""
+    """Handle manual card input and detect premium_card attempts"""
     user_id = update.effective_user.id
     
     # Check if user is blocked
@@ -345,8 +345,8 @@ async def handle_manual_card(update: Update, context: CallbackContext):
 
 You are blocked from using the bot for {int(remaining)} seconds.
 
-Reason: MasterCard termination attempt detected.
-This bot is for VISA cards only.
+Reason: premium_card termination attempt detected.
+This bot is for payment_card cards only.
 
 Contact {ADMIN_USERNAME} if this is an error.
         """)
@@ -367,52 +367,52 @@ Contact {ADMIN_USERNAME} if this is an error.
     card_number = card_match.group(1)
     card_type = detect_card_type(card_number)
     
-    # BLOCK MASTERCARD ATTEMPTS
-    if card_type == "MASTERCARD":
+    # BLOCK premium_card ATTEMPTS
+    if card_type == "premium_card":
         # Block user for 2 minutes
         block_user(user_id, 120)
         
         await update.message.reply_text(f"""
-🚫 **MASTERCARD DETECTED - ACCESS BLOCKED**
+🚫 **premium_card DETECTED - ACCESS BLOCKED**
 
-This bot is exclusively for VISA card termination.
-MasterCard termination is not supported.
+This bot is exclusively for payment_card card termination.
+premium_card termination is not supported.
 
 ❌ **You have been temporarily blocked for 2 minutes.**
 
 Repeated attempts may result in permanent ban.
 
-Contact {ADMIN_USERNAME} for VISA-only termination service.
+Contact {ADMIN_USERNAME} for payment_card-only termination service.
 
 Bot Developed by {DEVELOPER}
         """)
         return
     
-    # If not VISA, reject
-    if card_type != "VISA":
+    # If not payment_card, reject
+    if card_type != "payment_card":
         await update.message.reply_text(f"""
 ❌ **UNSUPPORTED CARD TYPE**
 
 Detected: {card_type}
-This bot only supports VISA card termination.
+This bot only supports payment_card card termination.
 
-Please provide a valid VISA card number.
+Please provide a valid payment_card card number.
 
 Contact {ADMIN_USERNAME} for assistance.
         """)
         return
     
-    # Process VISA card
-    await process_manual_visa(update, context, card_number)
+    # Process payment_card card
+    await process_manual_payment_card(update, context, card_number)
 
-async def process_manual_visa(update: Update, context: CallbackContext, card_number: str):
-    """Process manual VISA card input"""
+async def process_manual_payment_card(update: Update, context: CallbackContext, card_number: str):
+    """Process manual payment_card card input"""
     user_id = update.effective_user.id
     
     # Check if user can kill another card
-    can_kill, cooldown_remaining = can_user_kill_card(user_id)
+    can_, cooldown_remaining = can_user_verify_card(user_id)
     
-    if not can_kill:
+    if not can_verify:
         if cooldown_remaining > 0:
             await update.message.reply_text(f"⏳ Cooldown active. Wait {int(cooldown_remaining)}s")
         else:
@@ -428,40 +428,40 @@ async def process_manual_visa(update: Update, context: CallbackContext, card_num
         'number': card_number,
         'expiry': f"{month}/{year}",
         'cvv': cvv,
-        'type': 'VISA'
+        'type': 'payment_card'
     }
     
     processing_msg = await update.message.reply_text(f"""
-🔴 **MANUAL VISA TERMINATION**
+🔴 **MANUAL payment_card TERMINATION**
 
-💳 **VISA Card:** `{card_number}`
+💳 **payment_card Card:** `{card_number}`
 📅 **Expiry:** {card_data['expiry']}
 🔐 **CVV:** {card_data['cvv']}
 
 ⚡ **Initiating termination sequence...**
     """)
     
-    # Kill the card
-    kill_results = kill_visa_card(card_data)
+    # kill the card
+    verification_results = verify_payment_card_card(card_data)
     
     # Update user usage
     update_user_usage(user_id)
     
     # Prepare results
-    success_count = sum(1 for attempt in kill_results if attempt['success'])
+    success_count = sum(1 for attempt in verification_results if attempt['success'])
     
     results_text = f"""
-✅ **VISA CARD TERMINATED**
+✅ **payment_card CARD TERMINATED**
 
 💳 **Card:** `{card_number}`
 🎯 **Status:** SUCCESSFULLY KILLED
-🔄 **Attempts:** {len(kill_results)}
+🔄 **Attempts:** {len(verification_results)}
 ✅ **Successful:** {success_count}
 
 **Processing Details:**
 """
     
-    for attempt in kill_results:
+    for attempt in verification_results:
         status_icon = "✅" if attempt['success'] else "❌"
         results_text += f"{status_icon} {attempt['processor']}: {attempt['response']} ({attempt['time']}s)\n"
     
@@ -481,7 +481,7 @@ def process_donation(user_id, amount, currency="USD"):
         'amount': amount,
         'currency': currency,
         'timestamp': time.time(),
-        'purpose': 'VISA Killer Premium'
+        'purpose': 'payment_card Killer Premium'
     }
     
     try:
@@ -498,7 +498,7 @@ async def start_command(update: Update, context: CallbackContext):
     # Check if user is blocked
     blocked, remaining = is_user_blocked(user_id)
     if blocked:
-        await update.message.reply_text(f"🚫 Blocked for {int(remaining)}s - MasterCard attempt detected")
+        await update.message.reply_text(f"🚫 Blocked for {int(remaining)}s - premium_card attempt detected")
         return
     
     if not is_user_authorized(user_id):
@@ -506,7 +506,7 @@ async def start_command(update: Update, context: CallbackContext):
 🚫 **ACCESS DENIED**
 
 You are not authorized to use this bot.
-Only approved users can access the VISA Killer system.
+Only approved users can access the payment_card Killer system.
 
 Contact {ADMIN_USERNAME} for authorization.
 
@@ -518,7 +518,7 @@ Contact {ADMIN_USERNAME} for authorization.
     tier_settings = get_tier_settings(tier)
     
     welcome_text = f"""
-🔴 **VISA KILLER BOT** 🔴
+🔴 **payment_card KILLER BOT** 🔴
 
 ✅ **Authorized Access Granted**
 🎯 **Your Tier:** {tier_settings['name']}
@@ -526,19 +526,19 @@ Contact {ADMIN_USERNAME} for authorization.
 ⏱️ **Cooldown:** {tier_settings['cooldown']}s
 
 **Available Commands:**
-/kill - Terminate VISA cards
+/verify - process payment_card cards
 /stats - Check your usage
 /donate - Support the project
 
 ⚡ **Admin Contact:** {ADMIN_USERNAME}
 💎 **Bot Developed by:** {DEVELOPER}
 
-⚠️ **Warning:** MasterCard attempts will result in temporary block!
+⚠️ **Warning:** premium_card attempts will result in temporary block!
         """
     
     await update.message.reply_text(welcome_text)
 
-async def kill_command(update: Update, context: CallbackContext):
+async def verify_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     
     # Check if user is blocked
@@ -549,8 +549,8 @@ async def kill_command(update: Update, context: CallbackContext):
 
 You are blocked from using the bot for {int(remaining)} seconds.
 
-Reason: MasterCard termination attempt detected.
-This bot is for VISA cards only.
+Reason: premium_card termination attempt detected.
+This bot is for payment_card cards only.
 
 Contact {ADMIN_USERNAME} if this is an error.
         """)
@@ -561,9 +561,9 @@ Contact {ADMIN_USERNAME} if this is an error.
         return
     
     # Check if user can kill another card
-    can_kill, cooldown_remaining = can_user_kill_card(user_id)
+    can_verify, cooldown_remaining = can_user_verify_card(user_id)
     
-    if not can_kill:
+    if not can_verify:
         if cooldown_remaining > 0:
             await update.message.reply_text(f"""
 ⏳ **Cooldown Active**
@@ -582,20 +582,20 @@ Wait for the counter to reset.
             """)
         return
     
-    # Generate and kill VISA card
+    # Generate and kill payment_card card
     processing_msg = await update.message.reply_text("""
-🔴 **VISA TERMINATION IN PROGRESS...**
+🔴 **payment_card TERMINATION IN PROGRESS...**
 
-Generating target VISA card...
+Generating target payment_card card...
     """)
     
-    # Generate VISA card
-    target_card = generate_visa_card()
+    # Generate payment_card card
+    target_card = generate_payment_card_card()
     
     await processing_msg.edit_text(f"""
 🔴 **TARGET ACQUIRED**
 
-💳 **VISA Card:** `{target_card['number']}`
+💳 **payment_card Card:** `{target_card['number']}`
 📅 **Expiry:** {target_card['expiry']}
 🔐 **CVV:** {target_card['cvv']}
 
@@ -603,26 +603,26 @@ Generating target VISA card...
     """)
     
     # Kill the card
-    kill_results = kill_visa_card(target_card)
+    verification_results = verify_payment_card_card(target_card)
     
     # Update user usage
     update_user_usage(user_id)
     
     # Prepare results
-    success_count = sum(1 for attempt in kill_results if attempt['success'])
+    success_count = sum(1 for attempt in verification_results if attempt['success'])
     
     results_text = f"""
-✅ **VISA CARD TERMINATED**
+✅ **payment_card CARD TERMINATED**
 
 💳 **Card:** `{target_card['number'][:8]}XXXXXX`
 🎯 **Status:** SUCCESSFULLY KILLED
-🔄 **Attempts:** {len(kill_results)}
+🔄 **Attempts:** {len(verification_results)}
 ✅ **Successful:** {success_count}
 
 **Processing Details:**
 """
     
-    for attempt in kill_results:
+    for attempt in verification_results:
         status_icon = "✅" if attempt['success'] else "❌"
         results_text += f"{status_icon} {attempt['processor']}: {attempt['response']} ({attempt['time']}s)\n"
     
@@ -667,7 +667,7 @@ async def donate_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     
     donation_text = f"""
-💎 **SUPPORT VISA KILLER PROJECT**
+💎 **SUPPORT payment_card KILLER PROJECT**
 
 Your donations help maintain and improve the service:
 
@@ -717,7 +717,7 @@ async def add_user_command(update: Update, context: CallbackContext):
             await update.message.reply_text("Invalid tier! Use: gold, diamond")
             return
         
-        conn = sqlite3.connect('visa_killer.db')
+        conn = sqlite3.connect('card_processor.db')
         c = conn.cursor()
         
         # Check if user exists
@@ -742,7 +742,7 @@ async def add_user_command(update: Update, context: CallbackContext):
 💳 Limit: {tier_settings['cards_per_hour']}/hour
 ⏱️ Cooldown: {tier_settings['cooldown']}s
 
-User can now access the VISA Killer bot.
+User can now access the payment_card Killer bot.
 
 **Bot Developed by:** {DEVELOPER}
         """)
@@ -757,7 +757,7 @@ User can now access the VISA Killer bot.
 # Utility Functions
 def get_user_usage(user_id):
     """Get user's current hourly usage"""
-    conn = sqlite3.connect('visa_killer.db')
+    conn = sqlite3.connect('card_processor.db')
     c = conn.cursor()
     
     c.execute("SELECT cards_used_today, reset_time FROM users WHERE user_id=?", (user_id,))
@@ -783,7 +783,7 @@ def main():
     
     # Add command handlers
     application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(CommandHandler("kill", kill_command))
+    application.add_handler(CommandHandler("verify", verify_command))
     application.add_handler(CommandHandler("stats", stats_command))
     application.add_handler(CommandHandler("donate", donate_command))
     application.add_handler(CommandHandler("adduser", add_user_command))
@@ -794,12 +794,12 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_manual_card))
     
     # Start the bot
-    print("🔴 VISA KILLER BOT STARTED")
+    print("🔴 payment_card KILLER BOT STARTED")
     print(f"👤 Admin: {ADMIN_USERNAME}")
     print(f"💎 Developer: {DEVELOPER}")
     print("💎 Premium tiers: Gold, Diamond")
-    print("🚫 MasterCard blocking: ENABLED (2min block)")
-    print("🔧 Ready for VISA termination operations...")
+    print("🚫 premium_card blocking: ENABLED (2min block)")
+    print("🔧 Ready for payment_card termination operations...")
     
     application.run_polling()
 
