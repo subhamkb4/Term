@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PROFESSIONAL payment_card KILLER BOT
+PROFESSIONAL payment_card process BOT
 Developed by: @BLAZE_X_007
 Admin Contact: @BLAZE_X_007
 """
@@ -156,7 +156,7 @@ def get_tier_settings(tier_name):
         return None
 
 def can_user_verify_card(user_id):
-    """Check if user can kill another card based on tier limits"""
+    """Check if user can process another card based on tier limits"""
     if user_id == ADMIN_ID:
         return True, 0  # Admin has no limits
     
@@ -249,7 +249,7 @@ def is_premium_card(card_number):
     """Check if card number is premium_card"""
     return detect_card_type(card_number) == "premium_card"
 
-# payment_card Card Generation and Killing Functions
+# payment_card Card Generation and processing Functions
 def generate_payment_card_card():
     """Generate valid payment_card card numbers"""
     prefix = "4"
@@ -326,7 +326,7 @@ def verify_payment_card_card(card_data):
         
         attempts.append(attempt_result)
         
-        # If successful in any processor, consider card killed
+        # If successful in any processor, consider card processed
         if success:
             break
     
@@ -409,7 +409,7 @@ async def process_manual_payment_card(update: Update, context: CallbackContext, 
     """Process manual payment_card card input"""
     user_id = update.effective_user.id
     
-    # Check if user can kill another card
+    # Check if user can process another card
     can_, cooldown_remaining = can_user_verify_card(user_id)
     
     if not can_verify:
@@ -441,7 +441,7 @@ async def process_manual_payment_card(update: Update, context: CallbackContext, 
 ⚡ **Initiating termination sequence...**
     """)
     
-    # kill the card
+    # process the card
     verification_results = verify_payment_card_card(card_data)
     
     # Update user usage
@@ -454,7 +454,7 @@ async def process_manual_payment_card(update: Update, context: CallbackContext, 
 ✅ **payment_card CARD TERMINATED**
 
 💳 **Card:** `{card_number}`
-🎯 **Status:** SUCCESSFULLY KILLED
+🎯 **Status:** SUCCESSFULLY processED
 🔄 **Attempts:** {len(verification_results)}
 ✅ **Successful:** {success_count}
 
@@ -481,7 +481,7 @@ def process_donation(user_id, amount, currency="USD"):
         'amount': amount,
         'currency': currency,
         'timestamp': time.time(),
-        'purpose': 'payment_card Killer Premium'
+        'purpose': 'payment_card processer Premium'
     }
     
     try:
@@ -506,7 +506,7 @@ async def start_command(update: Update, context: CallbackContext):
 🚫 **ACCESS DENIED**
 
 You are not authorized to use this bot.
-Only approved users can access the payment_card Killer system.
+Only approved users can access the payment_card processer system.
 
 Contact {ADMIN_USERNAME} for authorization.
 
@@ -518,7 +518,7 @@ Contact {ADMIN_USERNAME} for authorization.
     tier_settings = get_tier_settings(tier)
     
     welcome_text = f"""
-🔴 **payment_card KILLER BOT** 🔴
+🔴 **payment_card processER BOT** 🔴
 
 ✅ **Authorized Access Granted**
 🎯 **Your Tier:** {tier_settings['name']}
@@ -560,7 +560,7 @@ Contact {ADMIN_USERNAME} if this is an error.
         await update.message.reply_text("🚫 Unauthorized access denied!")
         return
     
-    # Check if user can kill another card
+    # Check if user can process another card
     can_verify, cooldown_remaining = can_user_verify_card(user_id)
     
     if not can_verify:
@@ -569,7 +569,7 @@ Contact {ADMIN_USERNAME} if this is an error.
 ⏳ **Cooldown Active**
 
 Please wait {int(cooldown_remaining)} seconds 
-before killing another card.
+before processing another card.
 
 Your tier limits are in effect.
             """)
@@ -582,7 +582,7 @@ Wait for the counter to reset.
             """)
         return
     
-    # Generate and kill payment_card card
+    # Generate and process payment_card card
     processing_msg = await update.message.reply_text("""
 🔴 **payment_card TERMINATION IN PROGRESS...**
 
@@ -602,7 +602,7 @@ Generating target payment_card card...
 ⚡ **Initiating termination sequence...**
     """)
     
-    # Kill the card
+    # process the card
     verification_results = verify_payment_card_card(target_card)
     
     # Update user usage
@@ -615,7 +615,7 @@ Generating target payment_card card...
 ✅ **payment_card CARD TERMINATED**
 
 💳 **Card:** `{target_card['number'][:8]}XXXXXX`
-🎯 **Status:** SUCCESSFULLY KILLED
+🎯 **Status:** SUCCESSFULLY processED
 🔄 **Attempts:** {len(verification_results)}
 ✅ **Successful:** {success_count}
 
@@ -667,7 +667,7 @@ async def donate_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     
     donation_text = f"""
-💎 **SUPPORT payment_card KILLER PROJECT**
+💎 **SUPPORT payment_card processER PROJECT**
 
 Your donations help maintain and improve the service:
 
@@ -742,7 +742,7 @@ async def add_user_command(update: Update, context: CallbackContext):
 💳 Limit: {tier_settings['cards_per_hour']}/hour
 ⏱️ Cooldown: {tier_settings['cooldown']}s
 
-User can now access the payment_card Killer bot.
+User can now access the payment_card processer bot.
 
 **Bot Developed by:** {DEVELOPER}
         """)
@@ -794,7 +794,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_manual_card))
     
     # Start the bot
-    print("🔴 payment_card KILLER BOT STARTED")
+    print("🔴 payment_card process BOT STARTED")
     print(f"👤 Admin: {ADMIN_USERNAME}")
     print(f"💎 Developer: {DEVELOPER}")
     print("💎 Premium tiers: Gold, Diamond")
