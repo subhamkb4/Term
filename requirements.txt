@@ -1,0 +1,89 @@
+# VISA Killer Bot Requirements
+# Project Developed by: @BLAZE_X_007
+
+# Core Telegram Bot Framework
+python-telegram-bot==20.7
+
+# HTTP Requests for API Calls
+requests==2.31.0
+
+# Database Management
+sqlite3
+
+# Date and Time Handling
+python-dateutil==2.8.2
+
+# Regular Expressions
+regex==2023.10.3
+
+# Asynchronous Programming
+asyncio
+
+# Logging Configuration
+logging
+
+# Random Number Generation
+secrets
+
+# String Operations
+string
+
+# JSON Processing
+json
+
+# Time Functions
+time
+
+# Mathematical Operations
+math
+
+# System Operations
+sys
+os
+
+# Additional Security Packages
+cryptography==41.0.7
+hashlib
+
+# Network Utilities
+urllib3==2.0.7
+
+# Data Validation
+pydantic==2.4.2
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Rate Limiting
+redis==5.0.1
+
+# Advanced Logging
+loguru==0.7.2
+
+# Performance Monitoring
+psutil==5.9.6
+
+# HTTP Session Management
+aiohttp==3.8.5
+
+# Background Tasks
+apscheduler==3.10.4
+
+# Data Serialization
+pickle
+
+# Configuration Management
+configparser==6.0.0
+
+# Testing Framework
+pytest==7.4.2
+
+# Code Quality
+black==23.9.1
+flake8==6.1.0
+
+# Type Checking
+mypy==1.6.1
+
+# Documentation Generation
+sphinx==7.2.6
